@@ -1,7 +1,7 @@
 use crate::dict::NtimDict;
 
 use std::io::{Read, Write};
-use std::os::unix::net::{UnixStream, UnixListener};
+use std::os::unix::net::UnixListener;
 
 pub struct NtimServer {
 	dict: NtimDict,
@@ -21,16 +21,24 @@ impl NtimServer {
 		for stream in listener.incoming() {
 			match stream {
 				Ok(mut stream) => {
-					while let Ok(buflen) = stream.read(&mut buf) {
+					'read_loop: while let Ok(buflen) = stream.read(&mut buf) {
 						if buflen == 0 { break }
-						let key = String::from_utf8(buf[..buflen].to_vec()).unwrap();
+						let mut key = Vec::new();
+						for idx in 0..buflen {
+							if !(32..127).contains(&buf[idx]) {
+								continue 'read_loop
+							}
+							key.push(buf[idx] as char);
+						};
+						let key: String = key.into_iter().collect();
 						let key = key.trim();
 						eprintln!("{:?}", key);
 						let output = self.dict.query(key).join(" ");
+						let output = format!("x{}", output);
 						stream.write_all(output.as_bytes()).unwrap();
 					}
 				}
-				Err(err) => { break },
+				Err(_) => { break },
 			}
 		}
 	}
