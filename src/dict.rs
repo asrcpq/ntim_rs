@@ -20,11 +20,13 @@ impl NtimDict {
 			match words.len() {
 				2 => {
 					let e = data.entry(words[0].to_string()).or_insert_with(Default::default);
-					e.insert(words[1].to_string(), 0.0);
+					let e = e.entry(words[1].to_string()).or_insert(0.0);
+					*e += 1.0;
 				},
 				3 => {
 					let e = data.entry(words[0].to_string()).or_insert_with(Default::default);
-					e.insert(words[1].to_string(), words[2].parse::<f32>().unwrap());
+					let e = e.entry(words[1].to_string()).or_insert(0.0);
+					*e += words[2].parse::<f32>().unwrap();
 				}
 				_ => {
 					eprintln!("WARN: word len error: {:?}", words);
