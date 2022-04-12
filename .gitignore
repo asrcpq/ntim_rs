@@ -3,3 +3,5 @@ Cargo.lock
 
 __pycache__
 /utils/venv
+
+*.log

@@ -1,8 +1,8 @@
 use std::io::{prelude::*, BufReader};
 
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 
-type Dict = HashMap<String, BTreeMap<String, f32>>;
+type Dict = HashMap<String, HashMap<String, f32>>;
 
 #[derive(Default)]
 pub struct NtimDict {
@@ -39,7 +39,11 @@ impl NtimDict {
 
 	pub fn query(&self, key: &str) -> Vec<String> {
 		match self.data.get(key) {
-			Some(map) => map.keys().rev().cloned().collect(),
+			Some(map) => {
+				let mut v = Vec::from_iter(map);
+				v.sort_by(|&(_, a), &(_, b)| b.partial_cmp(&a).unwrap());
+				v.iter().map(|x| x.0).cloned().collect()
+			}
 			None => Vec::new(),
 		}
 	}

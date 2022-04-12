@@ -5,3 +5,4 @@ edition = "2021"
 
 [dependencies]
 termion = "1.5"
+anyhow = "1.0"
