@@ -44,6 +44,8 @@ fn main() -> Result<()> {
 				} else if ch.is_ascii_alphabetic() || ch.is_ascii_punctuation() {
 					buffer.push(ch as u8);
 					send_msg = true;
+				} else if (ch.is_ascii_digit() || ch == ' ') && buffer.is_empty() {
+					text.push(ch as char);
 				} else if ch.is_ascii_digit() || ch == ' ' {
 					let num = if ch == ' ' {
 						1
