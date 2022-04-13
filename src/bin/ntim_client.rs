@@ -19,6 +19,7 @@ fn main() -> Result<()> {
 	stdout.flush().unwrap();
 	let mut page_offset: usize = 0;
 	for key in stdin.keys() {
+		let (_col, row) = termion::terminal_size().unwrap();
 		write!(stdout, "{}{}", termion::clear::All, termion::style::Reset)?;
 		match key {
 			Ok(Key::Ctrl('b')) => {
@@ -57,12 +58,6 @@ fn main() -> Result<()> {
 						text.extend(word.chars());
 						buffer.clear();
 						words.clear();
-						write!(
-							stdout,
-							"{}{}",
-							termion::cursor::Goto(1, 3),
-							termion::clear::CurrentLine
-						)?;
 					}
 				}
 			}
@@ -109,22 +104,22 @@ fn main() -> Result<()> {
 		}
 		write!(
 			stdout,
-			"{}> {}",
-			Goto(1, 1),
-			text.iter().collect::<String>()
-		)?;
-		write!(
-			stdout,
 			"{}{}",
-			Goto(1, 2),
+			Goto(1, row - 1),
 			String::from_utf8(buffer.clone()).unwrap()
 		)?;
-		write!(stdout, "{}", Goto(1, 3))?;
+		write!(stdout, "{}", Goto(1, row))?;
 		for di in 0..10 {
 			if let Some(word) = words.get(page_offset + di) {
 				write!(stdout, "{}:{} ", di + 1, word)?;
 			}
 		}
+		write!(
+			stdout,
+			"{}> {}",
+			Goto(1, 1),
+			text.iter().collect::<String>()
+		)?;
 		stdout.flush().unwrap();
 	}
 	Ok(())
