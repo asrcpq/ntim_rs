@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 cd "$(dirname "$0")"/..
 source ~/.cargo/env
 if [ "$1" = "server" ]; then

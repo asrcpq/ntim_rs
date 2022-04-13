@@ -21,14 +21,14 @@ fn main() -> Result<()> {
 	for key in stdin.keys() {
 		write!(stdout, "{}{}", termion::clear::All, termion::style::Reset)?;
 		match key {
-			Ok(Key::Char('-')) | Ok(Key::Ctrl('b')) => {
+			Ok(Key::Ctrl('b')) => {
 				if page_offset >= 10 {
 					page_offset -= 10;
 				} else {
 					page_offset = 0;
 				}
 			}
-			Ok(Key::Char('=')) | Ok(Key::Ctrl('f')) => {
+			Ok(Key::Ctrl('f')) => {
 				page_offset += 10;
 				if page_offset >= words.len() {
 					page_offset = words.len() - 1;
@@ -39,7 +39,9 @@ fn main() -> Result<()> {
 		let mut send_msg = false;
 		match key {
 			Ok(Key::Char(ch)) => {
-				if ch.is_ascii_lowercase() {
+				if ch == '\n' {
+					text.extend(String::from_utf8(std::mem::take(&mut buffer)).unwrap().chars());
+				} else if ch.is_ascii_lowercase() || ch.is_ascii_punctuation() {
 					buffer.push(ch as u8);
 					send_msg = true;
 				} else if ch.is_ascii_digit() || ch == ' ' {
@@ -48,7 +50,7 @@ fn main() -> Result<()> {
 					} else {
 						(ch as u8 - b'0') as usize
 					};
-					let num = if num == 0 { 10 } else { num - 1 };
+					let num = if num == 0 { 9 } else { num - 1 };
 					if let Some(word) = words.get(num + page_offset) {
 						text.extend(word.chars());
 						buffer.clear();
@@ -71,6 +73,7 @@ fn main() -> Result<()> {
 			}
 			Ok(Key::Ctrl('c')) => {
 				buffer.clear();
+				words.clear();
 			}
 			Ok(Key::Backspace) => {
 				if buffer.is_empty() {
@@ -79,6 +82,8 @@ fn main() -> Result<()> {
 					buffer.pop();
 					if !buffer.is_empty() {
 						send_msg = true;
+					} else {
+						words.clear();
 					}
 				}
 			}
@@ -102,7 +107,7 @@ fn main() -> Result<()> {
 		}
 		write!(
 			stdout,
-			"{}> Current text: {}",
+			"{}> {}",
 			Goto(1, 1),
 			text.iter().collect::<String>()
 		)?;
