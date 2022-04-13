@@ -41,6 +41,9 @@ fn main() -> Result<()> {
 		match key {
 			Ok(Key::Char(ch)) => {
 				if ch == '\n' {
+					if buffer.is_empty() {
+						break
+					}
 					text.extend(String::from_utf8(std::mem::take(&mut buffer)).unwrap().chars());
 				} else if ch.is_ascii_alphabetic() || ch.is_ascii_punctuation() {
 					buffer.push(ch as u8);
@@ -62,10 +65,6 @@ fn main() -> Result<()> {
 				}
 			}
 			Ok(Key::Ctrl('d')) => {
-				std::fs::write(
-					"/tmp/ntim_rs.txt",
-					text.into_iter().collect::<String>(),
-				)?;
 				break;
 			}
 			Ok(Key::Ctrl('c')) => {
@@ -122,5 +121,9 @@ fn main() -> Result<()> {
 		)?;
 		stdout.flush().unwrap();
 	}
+	std::fs::write(
+		"/tmp/ntim_rs.txt",
+		text.into_iter().collect::<String>(),
+	)?;
 	Ok(())
 }
