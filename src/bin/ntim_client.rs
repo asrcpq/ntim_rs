@@ -41,7 +41,7 @@ fn main() -> Result<()> {
 			Ok(Key::Char(ch)) => {
 				if ch == '\n' {
 					text.extend(String::from_utf8(std::mem::take(&mut buffer)).unwrap().chars());
-				} else if ch.is_ascii_lowercase() || ch.is_ascii_punctuation() {
+				} else if ch.is_ascii_alphabetic() || ch.is_ascii_punctuation() {
 					buffer.push(ch as u8);
 					send_msg = true;
 				} else if ch.is_ascii_digit() || ch == ' ' {
