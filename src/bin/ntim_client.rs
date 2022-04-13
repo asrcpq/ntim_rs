@@ -1,10 +1,10 @@
 use anyhow::Result;
 use std::io::{Read, Write};
 use std::os::unix::net::UnixStream;
-use termion::raw::IntoRawMode;
-use termion::input::TermRead;
-use termion::event::Key;
 use termion::cursor::Goto;
+use termion::event::Key;
+use termion::input::TermRead;
+use termion::raw::IntoRawMode;
 
 fn main() -> Result<()> {
 	let mut stream = UnixStream::connect("./ntim.socket")?;
@@ -22,17 +22,17 @@ fn main() -> Result<()> {
 		write!(stdout, "{}{}", termion::clear::All, termion::style::Reset)?;
 		match key {
 			Ok(Key::Char('-')) | Ok(Key::Ctrl('b')) => {
-			if page_offset >= 10 {
-				page_offset -= 10;
-			} else {
-				page_offset = 0;
-			}
+				if page_offset >= 10 {
+					page_offset -= 10;
+				} else {
+					page_offset = 0;
+				}
 			}
 			Ok(Key::Char('=')) | Ok(Key::Ctrl('f')) => {
-			page_offset += 10;
-			if page_offset >= words.len() {
-				page_offset = words.len() - 1;
-			}
+				page_offset += 10;
+				if page_offset >= words.len() {
+					page_offset = words.len() - 1;
+				}
 			}
 			_ => {}
 		}
@@ -43,23 +43,31 @@ fn main() -> Result<()> {
 					buffer.push(ch as u8);
 					send_msg = true;
 				} else if ch.is_ascii_digit() || ch == ' ' {
-					let num = if ch == ' ' {1} else {(ch as u8 - b'0') as usize};
-					let num = if num == 0 {
-						10
+					let num = if ch == ' ' {
+						1
 					} else {
-						num - 1
+						(ch as u8 - b'0') as usize
 					};
+					let num = if num == 0 { 10 } else { num - 1 };
 					if let Some(word) = words.get(num + page_offset) {
 						text.extend(word.chars());
 						buffer.clear();
 						words.clear();
-						write!(stdout, "{}{}", termion::cursor::Goto(1, 3), termion::clear::CurrentLine)?;
+						write!(
+							stdout,
+							"{}{}",
+							termion::cursor::Goto(1, 3),
+							termion::clear::CurrentLine
+						)?;
 					}
 				}
-			},
+			}
 			Ok(Key::Ctrl('d')) => {
-				std::fs::write("/tmp/ntim_rs.txt", text.into_iter().collect::<String>())?;
-				break
+				std::fs::write(
+					"/tmp/ntim_rs.txt",
+					text.into_iter().collect::<String>(),
+				)?;
+				break;
 			}
 			Ok(Key::Ctrl('c')) => {
 				buffer.clear();
@@ -88,12 +96,22 @@ fn main() -> Result<()> {
 				}
 				words
 			} else {
-				break
+				break;
 			};
 			page_offset = 0;
 		}
-		write!(stdout, "{}> Current text: {}", Goto(1, 1), text.iter().collect::<String>())?;
-		write!(stdout, "{}{}", Goto(1, 2), String::from_utf8(buffer.clone()).unwrap())?;
+		write!(
+			stdout,
+			"{}> Current text: {}",
+			Goto(1, 1),
+			text.iter().collect::<String>()
+		)?;
+		write!(
+			stdout,
+			"{}{}",
+			Goto(1, 2),
+			String::from_utf8(buffer.clone()).unwrap()
+		)?;
 		write!(stdout, "{}", Goto(1, 3))?;
 		for di in 0..10 {
 			if let Some(word) = words.get(page_offset + di) {

@@ -1,0 +1,9 @@
+#!/bin/bash
+cd "$(dirname "$0")"/..
+source ~/.cargo/env
+if [ "$1" = "server" ]; then
+	cargo run --release --bin ntim_server <(cat ~/mnt/nfs/dataset/stat_nlp/ntim_rs/*.txt)
+elif [ "$1" = "client" ]; then
+	cargo run --release --bin ntim_client
+	cat /tmp/ntim_rs.txt | xsel -i -b
+fi

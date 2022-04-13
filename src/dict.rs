@@ -19,18 +19,22 @@ impl NtimDict {
 			let words: Vec<&str> = line.split(' ').collect();
 			match words.len() {
 				2 => {
-					let e = data.entry(words[0].to_string()).or_insert_with(Default::default);
+					let e = data
+						.entry(words[0].to_string())
+						.or_insert_with(Default::default);
 					let e = e.entry(words[1].to_string()).or_insert(0.0);
 					*e += 1.0;
-				},
+				}
 				3 => {
-					let e = data.entry(words[0].to_string()).or_insert_with(Default::default);
+					let e = data
+						.entry(words[0].to_string())
+						.or_insert_with(Default::default);
 					let e = e.entry(words[1].to_string()).or_insert(0.0);
 					*e += words[2].parse::<f32>().unwrap();
 				}
 				_ => {
 					eprintln!("WARN: word len error: {:?}", words);
-					continue
+					continue;
 				}
 			}
 		}
@@ -41,7 +45,7 @@ impl NtimDict {
 		match self.data.get(key) {
 			Some(map) => {
 				let mut v = Vec::from_iter(map);
-				v.sort_by(|&(_, a), &(_, b)| b.partial_cmp(&a).unwrap());
+				v.sort_by(|&(_, a), &(_, b)| b.partial_cmp(a).unwrap());
 				v.iter().map(|x| x.0).cloned().collect()
 			}
 			None => Vec::new(),

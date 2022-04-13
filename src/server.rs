@@ -22,14 +22,16 @@ impl NtimServer {
 			match stream {
 				Ok(mut stream) => {
 					'read_loop: while let Ok(buflen) = stream.read(&mut buf) {
-						if buflen == 0 { break }
+						if buflen == 0 {
+							break;
+						}
 						let mut key = Vec::new();
-						for idx in 0..buflen {
-							if !(32..127).contains(&buf[idx]) {
-								continue 'read_loop
+						for byte in buf.iter().take(buflen) {
+							if !(32..127).contains(byte) {
+								continue 'read_loop;
 							}
-							key.push(buf[idx] as char);
-						};
+							key.push(*byte as char);
+						}
 						let key: String = key.into_iter().collect();
 						let key = key.trim();
 						eprintln!("{:?}", key);
@@ -38,7 +40,7 @@ impl NtimServer {
 						stream.write_all(output.as_bytes()).unwrap();
 					}
 				}
-				Err(_) => { break },
+				Err(_) => break,
 			}
 		}
 	}

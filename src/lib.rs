@@ -1,2 +1,2 @@
-pub mod server;
 mod dict;
+pub mod server;
