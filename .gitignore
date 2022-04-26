@@ -3,5 +3,6 @@ Cargo.lock
 
 __pycache__
 /utils/venv
+/ntim_data
 
 *.log

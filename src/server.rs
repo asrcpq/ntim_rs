@@ -37,7 +37,7 @@ impl NtimServer {
 						eprintln!("{:?}", key);
 						let output = self.dict.query(key).join(" ");
 						let output = format!("x{}", output);
-						stream.write_all(output.as_bytes()).unwrap();
+						let _ = stream.write_all(output.as_bytes());
 					}
 				}
 				Err(_) => break,
